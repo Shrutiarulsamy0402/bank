@@ -5,7 +5,7 @@ import pandas as pd
 import os
 import random
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
 
 # Paths to CSV files
 data_path = "data"
@@ -195,7 +195,7 @@ def admin_dashboard():
         X = train_df[["amount", "income"]]
         y = (train_df["status"] == "approved").astype(int)
 
-        model = LogisticRegression()
+        model = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
         model.fit(X, y)
 
         pending_loans = loans_df[loans_df["status"] == "pending"]
