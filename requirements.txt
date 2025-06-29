@@ -1,7 +1,7 @@
 streamlit
 pandas
-scikit-learn
 numpy
-plotly
 matplotlib
+xgboost
+scikit-learn
 openai
