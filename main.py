@@ -243,7 +243,7 @@ def admin_dashboard():
                         st.success(f"Loan {loan_id} approved")
                         st.rerun()
 
-                 with col2:
+                with col2:
                     with st.expander(f"❌ Decline {row['loan_id']}"):
                         reason = st.selectbox(
                             f"Select reason for rejecting {row['loan_id']}",
