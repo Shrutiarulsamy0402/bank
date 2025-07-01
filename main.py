@@ -243,21 +243,32 @@ def admin_dashboard():
                         st.success(f"Loan {loan_id} approved")
                         st.rerun()
 
-                with col2:
-                    if st.button(f"❌ Decline {loan_id}", key=f"decline_{loan_id}"):
-                        reason = random.choice([
-                            "Low credit score",
-                            "Debt to income ratio too high",
-                            "Insufficient documentation"
-                        ])
-                        loans_df.loc[loans_df["loan_id"] == loan_id, "status"] = "declined"
-                        loans_df.loc[loans_df["loan_id"] == loan_id, "remarks"] = f"Admin-declined: {reason}. Risk Score: {risk_score}%"
-                        loan_status_df.loc[loan_status_df["loan_id"] == loan_id, "status"] = "declined"
-                        loan_status_df.loc[loan_status_df["loan_id"] == loan_id, "remarks"] = f"Admin-declined: {reason}. Risk Score: {risk_score}%"
-                        save_csv(loans_df, loans_file)
-                        save_csv(loan_status_df, loan_status_file)
-                        st.error(f"Loan {loan_id} declined: {reason}")
-                        st.rerun()
+                 with col2:
+                    with st.expander(f"❌ Decline {row['loan_id']}"):
+                        reason = st.selectbox(
+                            f"Select reason for rejecting {row['loan_id']}",
+                            ["Low credit score", "Incomplete documentation", "Not proper certification", "Unstable income", "Other"],
+                            key=f"reason_select_{row['loan_id']}"
+                        )
+                        if reason == "Other":
+                            reason_custom = st.text_input("Enter custom reason", key=f"reason_custom_{row['loan_id']}")
+                            final_reason = reason_custom.strip() if reason_custom.strip() else "Admin-declined"
+                        else:
+                            final_reason = reason
+
+                        if st.button(f"Confirm Rejection for {row['loan_id']}", key=f"confirm_reject_{row['loan_id']}"):
+                            loans_df.loc[loans_df["loan_id"] == row["loan_id"], "status"] = "declined"
+                            loans_df.loc[loans_df["loan_id"] == row["loan_id"], "remarks"] = f"{final_reason}. Risk Score: {risk_score}%"
+                            loan_status_df.loc[loan_status_df["loan_id"] == row["loan_id"], "status"] = "declined"
+                            loan_status_df.loc[loan_status_df["loan_id"] == row["loan_id"], "remarks"] = f"{final_reason}. Risk Score: {risk_score}%"
+                            save_csv(loans_df, loans_file)
+                            save_csv(loan_status_df, loan_status_file)
+                            st.session_state.loan_action_taken = True
+
+            if st.session_state.loan_action_taken:
+                st.session_state.loan_action_taken = False
+                st.rerun()
+
 
     elif option == "🔍 Fetch User Info":
         st.subheader("Fetch User Details")
